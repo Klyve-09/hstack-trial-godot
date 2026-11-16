@@ -1,0 +1,33 @@
+name: Proof
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  proof:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install Godot 4.7.2
+        run: |
+          mkdir -p "$RUNNER_TEMP/godot"
+          cd "$RUNNER_TEMP/godot"
+          curl -fsSLO https://github.com/godotengine/godot/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          curl -fsSLO https://github.com/godotengine/godot/releases/download/4.7.2-stable/SHA512-SUMS.txt
+          grep '  Godot_v4.7.2-stable_linux.x86_64.zip$' SHA512-SUMS.txt | sha512sum -c -
+          unzip -q Godot_v4.7.2-stable_linux.x86_64.zip
+          ln -s "$RUNNER_TEMP/godot/Godot_v4.7.2-stable_linux.x86_64" "$RUNNER_TEMP/godot/godot"
+          echo "$RUNNER_TEMP/godot" >> "$GITHUB_PATH"
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - uses: astral-sh/setup-uv@v10.3.3
+      - run: godot --headless --path . --import
+      - run: godot --headless --path . --script res://tests/run_tests.gd
+      - run: mkdir -p build && godot --headless --path . --export-pack Linux build/star-basket.pck
+      - run: uv --cache-dir .cache sync --locked
+      - run: .venv/bin/gdformat --check scripts tests
+      - run: .venv/bin/gdlint scripts tests
