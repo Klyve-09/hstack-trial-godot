@@ -3,9 +3,10 @@
 A tiny 2D game about catching falling stars. Move the basket, collect ten points
 per star, and try to beat your best score in a thirty-second round.
 
-The three screens are the title menu (Start / Quit), the playing field, and the
-round summary (score, best score, Play again / Title). There are no external
-assets or runtime dependencies beyond Godot, and the game works offline.
+The game has a title menu (Start / Quit), a playing field, a pause menu
+(Resume / Restart / Quit), and a round summary (score, best score, Play again /
+Title). There are no external assets or runtime dependencies beyond Godot, and
+the game works offline.
 
 ## Requirements and setup
 
@@ -32,9 +33,13 @@ godot --editor --path .
 - Move: A / D, left / right arrow keys, gamepad D-pad, or left stick.
 - Menus: up / down arrows or D-pad to move focus; Enter, Space, or gamepad A
   (the south face button) to select. Tab / Shift+Tab also cycle through buttons.
+- Pause during a round: Esc or gamepad Start. Resume with Esc, gamepad B
+  (cancel), gamepad Start, or the Resume button.
 
-Every menu focuses its first button and wraps between the two choices.
-Movement bindings and menu confirmation are defined in the project's InputMap.
+Every menu focuses its first button and wraps through its choices.
+Movement, pause, cancel, and menu confirmation use the project's InputMap.
+Restart begins a fresh round; Quit in the pause menu returns to the title.
+Abandoned rounds do not save a best score.
 
 ## Saved score
 
@@ -57,8 +62,9 @@ godot --headless --path . --script res://tests/run_tests.gd
 
 The runner exits nonzero on failure. It covers scoring, time limits, save
 round trips and damaged data, movement and catches, screen transitions, menu
-focus, and simulated keyboard and gamepad events. It uses a separate temporary
-save file and removes it afterward.
+focus, pause and resume, restarting and abandoning rounds, and simulated
+keyboard and gamepad events. It uses a separate temporary save file and removes
+it afterward.
 
 For formatting and linting, install Python 3.12 or newer and uv. Tool versions
 and dependency hashes are pinned in `uv.lock`; these tools are not used by the

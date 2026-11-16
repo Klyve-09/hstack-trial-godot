@@ -16,6 +16,14 @@ window/size/viewport_height=600
 window/stretch/mode="canvas_items"
 
 [input]
+ui_cancel={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"keycode":4194305), Object(InputEventJoypadButton,"button_index":1)]
+}
+pause={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"physical_keycode":4194305), Object(InputEventJoypadButton,"button_index":6)]
+}
 ui_accept={
 "deadzone": 0.5,
 "events": [Object(InputEventKey,"keycode":4194309), Object(InputEventKey,"keycode":4194310), Object(InputEventKey,"keycode":32), Object(InputEventJoypadButton,"button_index":0)]
