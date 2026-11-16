@@ -1,0 +1,22 @@
+{
+  "scene": "res://main.tscn",
+  "seed": 3,
+  "resolution": [800, 600],
+  "fixed_fps": 60,
+  "inputs": [
+    {"frame": 10, "action": "ui_accept", "pressed": true},
+    {"frame": 12, "action": "ui_accept", "pressed": false},
+    {"frame": 30, "action": "move_right", "pressed": true},
+    {"frame": 90, "action": "move_right", "pressed": false},
+    {"frame": 150, "action": "pause", "pressed": true},
+    {"frame": 152, "action": "pause", "pressed": false},
+    {"frame": 200, "action": "ui_down", "pressed": true},
+    {"frame": 202, "action": "ui_down", "pressed": false},
+    {"frame": 240, "action": "ui_up", "pressed": true},
+    {"frame": 242, "action": "ui_up", "pressed": false},
+    {"frame": 280, "action": "ui_cancel", "pressed": true},
+    {"frame": 282, "action": "ui_cancel", "pressed": false}
+  ],
+  "captures": [149, 180, 220, 260, 320],
+  "end_frame": 360
+}
