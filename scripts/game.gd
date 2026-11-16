@@ -1,6 +1,6 @@
 extends Node2D
 
-enum Screen { TITLE, PLAY, GAME_OVER }
+enum Screen { TITLE, PLAY, PAUSED, GAME_OVER }
 
 const Rules = preload("res://scripts/round_rules.gd")
 const ScoreStore = preload("res://scripts/score_store.gd")
@@ -23,6 +23,7 @@ var random := RandomNumberGenerator.new()
 var interface: Control
 var menu: VBoxContainer
 var hud: Label
+var pause_overlay: ColorRect
 
 
 func _ready() -> void:
@@ -34,6 +35,42 @@ func _ready() -> void:
 	interface.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	layer.add_child(interface)
 	show_title()
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_echo():
+		return
+	if screen == Screen.PLAY and event.is_action_pressed("pause"):
+		show_pause()
+		get_viewport().set_input_as_handled()
+	elif (
+		screen == Screen.PAUSED
+		and (event.is_action_pressed("ui_cancel") or event.is_action_pressed("pause"))
+	):
+		resume_round()
+		get_viewport().set_input_as_handled()
+
+
+func show_pause() -> void:
+	screen = Screen.PAUSED
+	pause_overlay = ColorRect.new()
+	pause_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	pause_overlay.color = Color(0, 0, 0, 0.65)
+	pause_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	interface.add_child(pause_overlay)
+	_create_menu("PAUSED", "Take a break. Your round will wait.")
+	menu.reparent(pause_overlay)
+	_add_button("Resume", resume_round)
+	_add_button("Restart", start_round)
+	_add_button("Quit", show_title)
+	_focus_menu()
+
+
+func resume_round() -> void:
+	interface.remove_child(pause_overlay)
+	pause_overlay.queue_free()
+	pause_overlay = null
+	screen = Screen.PLAY
 
 
 func _process(delta: float) -> void:
@@ -71,7 +108,7 @@ func _process(delta: float) -> void:
 
 
 func _draw() -> void:
-	if screen != Screen.PLAY:
+	if screen != Screen.PLAY and screen != Screen.PAUSED:
 		return
 	draw_style_box(_field_style(), FIELD)
 	for item in items:
