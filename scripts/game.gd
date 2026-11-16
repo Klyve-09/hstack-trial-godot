@@ -23,6 +23,7 @@ var random := RandomNumberGenerator.new()
 var interface: Control
 var menu: VBoxContainer
 var hud: Label
+var pause_overlay: ColorRect
 
 
 func _ready() -> void:
@@ -34,6 +35,12 @@ func _ready() -> void:
 	interface.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	layer.add_child(interface)
 	show_title()
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if screen == Screen.PLAY and event.is_action_pressed("ui_cancel"):
+		show_pause_menu()
+		get_viewport().set_input_as_handled()
 
 
 func _process(delta: float) -> void:
@@ -104,10 +111,64 @@ func start_round() -> void:
 	hud.add_theme_font_size_override("font_size", 25)
 	interface.add_child(hud)
 	var hint := Label.new()
-	hint.text = "Catch gold stars • Move with A / D, arrows or left stick"
+	hint.text = "Catch gold stars • Move with A / D, arrows or left stick • Esc: pause"
 	hint.position = Vector2(36, 568)
 	interface.add_child(hint)
+	var pause_button := Button.new()
+	pause_button.text = "Pause"
+	pause_button.position = Vector2(650, 32)
+	pause_button.custom_minimum_size = Vector2(114, 44)
+	pause_button.pressed.connect(show_pause_menu)
+	interface.add_child(pause_button)
 	queue_redraw()
+
+
+func show_pause_menu() -> void:
+	if screen != Screen.PLAY or is_instance_valid(pause_overlay):
+		return
+	pause_overlay = ColorRect.new()
+	pause_overlay.color = Color(0.02, 0.03, 0.07, 0.88)
+	pause_overlay.process_mode = Node.PROCESS_MODE_WHEN_PAUSED
+	pause_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	interface.add_child(pause_overlay)
+	var panel := VBoxContainer.new()
+	panel.position = Vector2(190, 140)
+	panel.size = Vector2(420, 0)
+	panel.add_theme_constant_override("separation", 20)
+	pause_overlay.add_child(panel)
+	var heading := Label.new()
+	heading.text = "PAUSED"
+	heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	heading.add_theme_font_size_override("font_size", 36)
+	panel.add_child(heading)
+	_add_pause_button(panel, "Resume", resume_round)
+	_add_pause_button(panel, "Restart", restart_round)
+	_add_pause_button(panel, "Quit", get_tree().quit)
+	get_tree().paused = true
+
+
+func resume_round() -> void:
+	if not is_instance_valid(pause_overlay):
+		return
+	get_tree().paused = false
+	interface.remove_child(pause_overlay)
+	pause_overlay.queue_free()
+	pause_overlay = null
+
+
+func restart_round() -> void:
+	resume_round()
+	start_round()
+
+
+func _add_pause_button(container: VBoxContainer, text: String, action: Callable) -> void:
+	var button := Button.new()
+	button.text = text
+	button.focus_mode = Control.FOCUS_NONE
+	button.custom_minimum_size = Vector2(420, 54)
+	button.add_theme_font_size_override("font_size", 23)
+	button.pressed.connect(action)
+	container.add_child(button)
 
 
 func finish_round() -> void:
